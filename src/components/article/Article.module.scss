@@ -6,15 +6,19 @@
 	row-gap: 24px;
 	max-width: var(--container-width, auto);
 	margin: 0 auto;
-	padding: 72px 0 144px;
+	padding: 90px 0;
+  overflow: hidden;
 }
 
 .titleDescription {
 	max-width: 550px;
 }
 
+
 .image {
-	width: 100%;
-	height: auto;
-	margin-top: 26px;
+  flex-shrink: 0;
+  width: var(--container-wide, 1394px);
+  max-width: none;
+  height: auto;
+  margin-top: 26px;
 }
