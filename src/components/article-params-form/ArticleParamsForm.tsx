@@ -10,13 +10,14 @@ import { ArrowButton } from '@/ui/arrow-button';
 import { Button } from '@/ui/button';
 import { RadioGroup } from '@/ui/radio-group';
 import { Select } from '@/ui/select';
-import { useOutsideClickClose } from '@/ui/select/hooks/useOutsideClickClose';
 import { Separator } from '@/ui/separator';
 import { Text } from '@/ui/text';
 import { clsx } from 'clsx';
 import { useRef, useState } from 'react';
 
-import type { ArticleStateType } from '@/constants/articleProps';
+import { useSidebarClose } from './hooks/useSidebarClose';
+
+import type { ArticleStateType, OptionType } from '@/constants/articleProps';
 
 import styles from './ArticleParamsForm.module.scss';
 
@@ -31,13 +32,20 @@ export const ArticleParamsForm = ({
 }: ArticleParamsFormProps): React.JSX.Element => {
   const [isOpen, setIsOpen] = useState(false);
   const [formState, setFormState] = useState<ArticleStateType>(state);
+  const [radioGroupKey, setRadioGroupKey] = useState(0);
   const rootRef = useRef<HTMLDivElement>(null);
 
-  useOutsideClickClose({
+  useSidebarClose({
     isOpen,
     rootRef,
-    onChange: setIsOpen,
+    onClose: () => setIsOpen(false),
   });
+
+  const handleFieldChange =
+    (key: keyof ArticleStateType) =>
+    (option: OptionType): void => {
+      setFormState((prev) => ({ ...prev, [key]: option }));
+    };
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>): void => {
     event.preventDefault();
@@ -48,6 +56,7 @@ export const ArticleParamsForm = ({
     event.preventDefault();
     setFormState(defaultArticleState);
     onChange(defaultArticleState);
+    setRadioGroupKey((prevKey) => prevKey + 1);
   };
 
   return (
@@ -63,28 +72,23 @@ export const ArticleParamsForm = ({
             title="Шрифт"
             selected={formState.fontFamilyOption}
             options={fontFamilyOptions}
-            onChange={(option) =>
-              setFormState((prev) => ({ ...prev, fontFamilyOption: option }))
-            }
+            onChange={handleFieldChange('fontFamilyOption')}
           />
 
           <RadioGroup
+            key={radioGroupKey}
             title="Размер шрифта"
             name="font-size"
             options={fontSizeOptions}
             selected={formState.fontSizeOption}
-            onChange={(option) =>
-              setFormState((prev) => ({ ...prev, fontSizeOption: option }))
-            }
+            onChange={handleFieldChange('fontSizeOption')}
           />
 
           <Select
             title="Цвет шрифта"
             selected={formState.fontColor}
             options={fontColors}
-            onChange={(option) =>
-              setFormState((prev) => ({ ...prev, fontColor: option }))
-            }
+            onChange={handleFieldChange('fontColor')}
           />
 
           <Separator />
@@ -93,18 +97,14 @@ export const ArticleParamsForm = ({
             title="Цвет фона"
             selected={formState.backgroundColor}
             options={backgroundColors}
-            onChange={(option) =>
-              setFormState((prev) => ({ ...prev, backgroundColor: option }))
-            }
+            onChange={handleFieldChange('backgroundColor')}
           />
 
           <Select
             title="Ширина контента"
             selected={formState.contentWidth}
             options={contentWidthArr}
-            onChange={(option) =>
-              setFormState((prev) => ({ ...prev, contentWidth: option }))
-            }
+            onChange={handleFieldChange('contentWidth')}
           />
 
           <div className={styles.bottomContainer}>
